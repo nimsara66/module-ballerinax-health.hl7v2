@@ -8,7 +8,7 @@ on:
 
 env:
   R4_PATTERN: '*/*'
-  EXCLUDE_GITHUB: '.github'
+  GITHUB_WORKFLOWS_DIR: '.github'
 
 jobs:
   setup:
@@ -42,7 +42,7 @@ jobs:
               EXTRACTED_PATH=$(echo "$file" | cut -d '/' -f 1)
             fi
 
-            if [[ $EXTRACTED_PATH && $EXTRACTED_PATH != $EXCLUDE_GITHUB ]]; then
+            if [[ $EXTRACTED_PATH && $EXTRACTED_PATH != $GITHUB_WORKFLOWS_DIR ]]; then
               UNIQUE_PATHS_MAP[$EXTRACTED_PATH]=1
             fi
           done
@@ -82,11 +82,6 @@ jobs:
           JAVA_HOME: /usr/lib/jvm/default-jvm
         if: ${{ matrix.path != 'fhirr4' }}
 
-      - name: Ballerina Native Build
-        run: |
-          echo "Hello World"
-        if: ${{ matrix.path == 'fhirr4' }}
-
   test:
     needs: [ setup ]
     runs-on: ubuntu-latest
@@ -108,7 +103,6 @@ jobs:
         env:
           WORKING_DIR: ./${{ matrix.path }}
           JAVA_HOME: /usr/lib/jvm/default-jvm
-        if: ${{ matrix.path != 'fhirr4' }}
 
       - name: Read Ballerina Test Results
         id: test_results
@@ -126,5 +120,4 @@ jobs:
             # echo "TEST_RESULTS_JSON=" >> $GITHUB_OUTPUT
             echo "No test results file found."
           fi
-        if: ${{ matrix.path != 'fhirr4' }}
         

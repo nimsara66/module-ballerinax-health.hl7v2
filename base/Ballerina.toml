@@ -1,5 +1,5 @@
 [package]
-org = "ballerinaxx"
+org = "ballerinax"
 name = "health.hl7v2"
 version = "1.0.5"
 authors=["Ballerina"]
