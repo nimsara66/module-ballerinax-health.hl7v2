@@ -117,3 +117,5 @@ jobs:
           # Push changes to branch
           echo "branch: ${{ steps.publish_release.outputs.BRANCH_NAME }}"
           gh pr create --base main --head ${{ steps.publish_release.outputs.BRANCH_NAME }} --title "Prepare for next dev cycle"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
