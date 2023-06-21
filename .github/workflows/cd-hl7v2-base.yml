@@ -119,4 +119,4 @@ jobs:
           echo "branch: ${{ steps.publish_release.outputs.BRANCH_NAME }}"
           gh pr create --base main --head ${{ steps.publish_release.outputs.BRANCH_NAME }} --fill
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
