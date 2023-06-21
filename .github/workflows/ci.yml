@@ -8,6 +8,7 @@ on:
 
 env:
   R4_PATTERN: '*/*'
+  EXCLUDE_GITHUB: '.github'
 
 jobs:
   setup:
@@ -41,7 +42,7 @@ jobs:
               EXTRACTED_PATH=$(echo "$file" | cut -d '/' -f 1)
             fi
 
-            if [[ $EXTRACTED_PATH ]]; then
+            if [[ $EXTRACTED_PATH && $EXTRACTED_PATH != $EXCLUDE_GITHUB ]]; then
               UNIQUE_PATHS_MAP[$EXTRACTED_PATH]=1
             fi
           done
