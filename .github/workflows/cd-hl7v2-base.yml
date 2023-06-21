@@ -106,7 +106,7 @@ jobs:
           sed -i "s/version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" ./base/Ballerina.toml
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Commit changes and make a PR
+      - name: Commit changes
         if: ${{ github.event.inputs.create-pr == 'true' }}
         run: |
           # Commit changes
@@ -115,28 +115,11 @@ jobs:
           git add ./base/Ballerina.toml
           git commit -m "Update version to ${{ steps.increment_patch_version.outputs.NEW_VERSION }}"
 
-          
-          # Get the branch name
-          BRANCH_NAME=
-
-          # Set the base and head branches
-          BASE_BRANCH="main"
-          HEAD_BRANCH="${{ steps.publish_release.outputs.BRANCH_NAME }}"
-
-          # Create the pull request using the GitHub REST API
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -d '{
-              "title": "[Automated] Prepare for next dev cycle",
-              "body": "",
-              "head": "'"$HEAD_BRANCH"'",
-              "base": "'"$BASE_BRANCH"'"
-            }' \
-            "https://api.github.com/repos/${{ github.repository }}/pulls")
-
-          # Extract the pull request URL from the response
-          PR_URL=$(echo "$RESPONSE" | jq -r '.html_url')
-
-          echo "response: $RESPONSE"
-          echo "Pull Request created: $PR_URL"
+      - name: Create a PR
+        if: ${{ github.event.inputs.create-pr == 'true' }}
+        uses: peter-evans/create-pull-request@v5
+        with: 
+          branch: "${{ steps.publish_release.outputs.BRANCH_NAME }}"
+          base: "main"
+          title: "[Automated] Prepare for next dev cycle"
+          token: ${{ secrets.GITHUB_TOKEN }}
