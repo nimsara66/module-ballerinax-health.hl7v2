@@ -15,6 +15,7 @@ on:
         description: 'Prepare for next dev cycle'
         required: false
         type: boolean
+        if: ${{ github.event.inputs.bal_central_environment == 'PROD' }}
 
 permissions:
   contents: write
@@ -88,14 +89,14 @@ jobs:
             -d '{
               "tag_name": "'$RELEASE_NAME'",
               "name": "'$RELEASE_NAME'",
-              "body": "[Automated] Creating tag:  ''$RELEASE_NAME''.",
+              "body": "[Automated] Creating tag:  '$RELEASE_NAME'.",
               "draft": false,
               "prerelease": false
             }' \
             "https://api.github.com/repos/${{ github.repository }}/releases"
 
       - name: Update version in Ballerina.toml
-        if: ${{ github.event.inputs.create-pr == 'true' }}
+        if: ${{ github.event.inputs.bal_central_environment == 'PROD' && github.event.inputs.create-pr == 'true' }}
         id: increment_patch_version
         run: |
           CURRENT_VERSION=$(grep -Po -m 1 '(?<=version = ")[\d.]+' ./base/Ballerina.toml)
@@ -106,7 +107,7 @@ jobs:
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Commit changes and make a PR
-        if: ${{ github.event.inputs.create-pr == 'true' }}
+        if: ${{ github.event.inputs.bal_central_environment == 'PROD' && github.event.inputs.create-pr == 'true' }}
         run: |
           # Commit changes
           git config --global user.name "GitHub Actions"
