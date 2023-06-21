@@ -88,6 +88,7 @@ jobs:
             -d '{
               "tag_name": "'$RELEASE_NAME'",
               "name": "'$RELEASE_NAME'",
+              "body": "[Automated] Creating tag:  ''$RELEASE_NAME''."
               "draft": false,
               "prerelease": false
             }' \
