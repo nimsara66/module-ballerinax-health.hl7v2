@@ -1,0 +1,117 @@
+name: CD hl7v2 Base
+
+on:
+  workflow_dispatch:
+    inputs:
+      bal_central_environment:
+        description: Ballerina Central Environment
+        type: choice
+        options:
+        - STAGE
+        - DEV
+        - PROD
+        required: true
+      create-pr:
+        description: 'Prepare for next dev cycle'
+        required: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: -Xmx4G
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Ballerina Build hl7v2 Base
+        uses: ballerina-platform/ballerina-action@2201.5.0
+        with:
+          args:
+            pack
+        env:
+          WORKING_DIR: ./base
+          JAVA_HOME: /usr/lib/jvm/default-jvm
+
+      - name: Push to Staging hl7v2 Base
+        if: github.event.inputs.bal_central_environment == 'STAGE'
+        uses: ballerina-platform/ballerina-action/@2201.5.0
+        with:
+          args:
+            push
+        env:
+          WORKING_DIR: ./base
+          JAVA_HOME: /usr/lib/jvm/default-jvm
+          BALLERINA_STAGE_CENTRAL: true
+          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_STAGE_ACCESS_TOKEN }}
+
+      - name: Push to Dev hl7v2 Base
+        if: github.event.inputs.bal_central_environment == 'DEV'
+        uses: ballerina-platform/ballerina-action/@2201.5.0
+        with:
+          args:
+            push
+        env:
+          WORKING_DIR: ./base
+          JAVA_HOME: /usr/lib/jvm/default-jvm
+          BALLERINA_DEV_CENTRAL: true
+          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_DEV_ACCESS_TOKEN }}      
+
+      # - name: Push to Prod hl7v2 Base
+      #   if: github.event.inputs.bal_central_environment == 'PROD'
+      #   uses: ballerina-platform/ballerina-action/@2201.5.0
+      #   with:
+      #     args:
+      #       push
+      #   env:
+      #     WORKING_DIR: ./base
+      #     JAVA_HOME: /usr/lib/jvm/default-jvm
+      #     BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_PROD_ACCESS_TOKEN }}
+
+      - name: Publish Release
+        if: github.event.inputs.bal_central_environment == 'PROD'
+        id: publish_release
+        run: |
+          # Get Branch Name
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+
+          # Release name
+          RELEASE_NAME=${BRANCH_NAME#release-}
+
+          curl \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{
+              "tag_name": "'$RELEASE_NAME'",
+              "name": "'$RELEASE_NAME'",
+              "draft": false,
+              "prerelease": false
+            }' \
+            "https://api.github.com/repos/${{ github.repository }}/releases"
+
+      - name: Update version in Ballerina.toml
+        if: ${{ github.event.inputs.create-pr == 'true' }}
+        id: increment_patch_version
+        run: |
+          CURRENT_VERSION=$(grep -Po -m 1 '(?<=version = ")[\d.]+' ./base/Ballerina.toml)
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH_VERSION=$((VERSION_PARTS[2] + 1))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH_VERSION-snapshot"
+          sed -i "s/version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" ./base/Ballerina.toml
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Commit changes and make a PR
+        if: ${{ github.event.inputs.create-pr == 'true' }}
+        run: |
+          # Commit changes
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ./base/Ballerina.toml
+          git commit -m "Update version to ${{ steps.increment_patch_version.outputs.NEW_VERSION }}"
+
+          # Push changes to branch
+          gh pr create --base main --head ${{ github.head_ref }} --title "Prepare for next dev cycle"
