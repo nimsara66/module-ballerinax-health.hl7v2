@@ -15,7 +15,6 @@ on:
         description: 'Prepare for next dev cycle'
         required: false
         type: boolean
-        if: ${{ github.event.inputs.bal_central_environment == 'PROD' }}
 
 permissions:
   contents: write
