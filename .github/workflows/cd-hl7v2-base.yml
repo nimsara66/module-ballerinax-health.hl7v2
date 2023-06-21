@@ -114,5 +114,5 @@ jobs:
           git commit -m "Update version to ${{ steps.increment_patch_version.outputs.NEW_VERSION }}"
 
           # Push changes to branch
-          echo ${{ github.head_ref }}
+          echo "branch: ${{ github.head_ref }}"
           gh pr create --base main --head ${{ github.head_ref }} --title "Prepare for next dev cycle"
