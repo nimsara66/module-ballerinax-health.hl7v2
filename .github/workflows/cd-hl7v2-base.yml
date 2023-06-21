@@ -115,8 +115,27 @@ jobs:
           git add ./base/Ballerina.toml
           git commit -m "Update version to ${{ steps.increment_patch_version.outputs.NEW_VERSION }}"
 
-          # Push changes to branch
-          echo "branch: ${{ steps.publish_release.outputs.BRANCH_NAME }}"
-          gh pr create --base main --head ${{ steps.publish_release.outputs.BRANCH_NAME }} --fill
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          
+          # Get the branch name
+          BRANCH_NAME=
+
+          # Set the base and head branches
+          BASE_BRANCH="main"
+          HEAD_BRANCH="${{ steps.publish_release.outputs.BRANCH_NAME }}"
+
+          # Create the pull request using the GitHub REST API
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d '{
+              "title": "[Automated] Prepare for next dev cycle",
+              "body": "",
+              "head": "'"$HEAD_BRANCH"'",
+              "base": "'"$BASE_BRANCH"'"
+            }' \
+            "https://api.github.com/repos/${{ github.repository }}/pulls")
+
+          # Extract the pull request URL from the response
+          PR_URL=$(echo "$RESPONSE" | jq -r '.html_url')
+
+          echo "Pull Request created: $PR_URL"
