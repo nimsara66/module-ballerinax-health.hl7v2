@@ -125,7 +125,7 @@ jobs:
 
           # Create the pull request using the GitHub REST API
           RESPONSE=$(curl -s -X POST \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             -d '{
               "title": "[Automated] Prepare for next dev cycle",
