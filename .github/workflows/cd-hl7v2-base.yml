@@ -77,6 +77,7 @@ jobs:
         run: |
           # Get Branch Name
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
           # Release name
           RELEASE_NAME=${BRANCH_NAME#release-}
@@ -114,5 +115,5 @@ jobs:
           git commit -m "Update version to ${{ steps.increment_patch_version.outputs.NEW_VERSION }}"
 
           # Push changes to branch
-          echo "branch: ${{ github.head_ref }}"
-          gh pr create --base main --head ${{ github.head_ref }} --title "Prepare for next dev cycle"
+          echo "branch: ${{ steps.publish_release.outputs.BRANCH_NAME }}"
+          gh pr create --base main --head ${{ steps.publish_release.outputs.BRANCH_NAME }} --title "Prepare for next dev cycle"
