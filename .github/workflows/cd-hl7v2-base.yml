@@ -138,4 +138,5 @@ jobs:
           # Extract the pull request URL from the response
           PR_URL=$(echo "$RESPONSE" | jq -r '.html_url')
 
+          echo "response: $RESPONSE"
           echo "Pull Request created: $PR_URL"
