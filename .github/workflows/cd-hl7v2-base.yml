@@ -117,7 +117,7 @@ jobs:
           HEAD_BRANCH="${{ steps.publish_release.outputs.BRANCH_NAME }}"
           # Create the pull request using the GitHub REST API
           RESPONSE=$(curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -d '{
               "title": "[Automated] Prepare for next dev cycle",
