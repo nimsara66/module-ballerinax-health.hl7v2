@@ -53,16 +53,16 @@ jobs:
           BALLERINA_DEV_CENTRAL: true
           BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_DEV_ACCESS_TOKEN }}      
           
-      - name: Push to Prod hl7v2 Base
-        if: github.event.inputs.bal_central_environment == 'PROD'
-        uses: ballerina-platform/ballerina-action/@2201.6.0
-        with:
-          args:
-            push
-        env:
-          WORKING_DIR: ./base
-          JAVA_HOME: /usr/lib/jvm/default-jvm
-          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_PROD_ACCESS_TOKEN }}
+      # - name: Push to Prod hl7v2 Base
+      #   if: github.event.inputs.bal_central_environment == 'PROD'
+      #   uses: ballerina-platform/ballerina-action/@2201.6.0
+      #   with:
+      #     args:
+      #       push
+      #   env:
+      #     WORKING_DIR: ./base
+      #     JAVA_HOME: /usr/lib/jvm/default-jvm
+      #     BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_PROD_ACCESS_TOKEN }}
 
       - name: Publish Release
         if: github.event.inputs.bal_central_environment == 'PROD'
