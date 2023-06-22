@@ -11,10 +11,6 @@ on:
         - DEV
         - PROD
         required: true
-      create-pr:
-        description: 'Prepare for next dev cycle'
-        required: false
-        type: boolean
 
 permissions:
   contents: write
@@ -29,7 +25,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Ballerina Build hl7v2 Base
-        uses: ballerina-platform/ballerina-action@2201.5.0
+        uses: ballerina-platform/ballerina-action@2201.6.0
         with:
           args:
             pack
@@ -39,7 +35,7 @@ jobs:
 
       - name: Push to Staging hl7v2 Base
         if: github.event.inputs.bal_central_environment == 'STAGE'
-        uses: ballerina-platform/ballerina-action/@2201.5.0
+        uses: ballerina-platform/ballerina-action/@2201.6.0
         with:
           args:
             push
@@ -51,7 +47,7 @@ jobs:
 
       - name: Push to Dev hl7v2 Base
         if: github.event.inputs.bal_central_environment == 'DEV'
-        uses: ballerina-platform/ballerina-action/@2201.5.0
+        uses: ballerina-platform/ballerina-action/@2201.6.0
         with:
           args:
             push
@@ -63,7 +59,7 @@ jobs:
 
       # - name: Push to Prod hl7v2 Base
       #   if: github.event.inputs.bal_central_environment == 'PROD'
-      #   uses: ballerina-platform/ballerina-action/@2201.5.0
+      #   uses: ballerina-platform/ballerina-action/@2201.6.0
       #   with:
       #     args:
       #       push
@@ -95,7 +91,7 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/releases"
 
       - name: Update version in Ballerina.toml
-        if: ${{ github.event.inputs.bal_central_environment == 'PROD' && github.event.inputs.create-pr == 'true' }}
+        if: ${{ github.event.inputs.bal_central_environment == 'PROD' }}
         id: increment_patch_version
         run: |
           CURRENT_VERSION=$(grep -Po -m 1 '(?<=version = ")[\d.]+' ./base/Ballerina.toml)
@@ -106,7 +102,7 @@ jobs:
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Commit changes and make a PR
-        if: ${{ github.event.inputs.bal_central_environment == 'PROD' && github.event.inputs.create-pr == 'true' }}
+        if: ${{ github.event.inputs.bal_central_environment == 'PROD' }}
         run: |
           # Commit changes
           git config --global user.name "GitHub Actions"
