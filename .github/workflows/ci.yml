@@ -26,7 +26,7 @@ jobs:
         id: unique-project-paths
         run: |
           # Get changed files of PR from github API
-          PR_DETAILS=$(curl -sSL -H "Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}" \
+          PR_DETAILS=$(curl -sSL \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files")
           CHANGED_FILES=$(echo "$PR_DETAILS" | jq -r '.[].filename')
           echo "Changed Files: "
@@ -119,4 +119,3 @@ jobs:
             # echo "TEST_RESULTS_JSON=" >> $GITHUB_OUTPUT
             echo "No test results file found."
           fi
-        
