@@ -82,7 +82,8 @@ jobs:
               "name": "'$RELEASE_NAME'",
               "body": "[Automated] Creating tag:  '$RELEASE_NAME'.",
               "draft": false,
-              "prerelease": false
+              "prerelease": false,
+              "target_commitish": "'$BRANCH_NAME'"
             }' \
             "https://api.github.com/repos/${{ github.repository }}/releases"
 
@@ -94,7 +95,7 @@ jobs:
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
           PATCH_VERSION=$((VERSION_PARTS[2] + 1))
           NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH_VERSION"
-          sed -i "s/version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" ./hl7v23/Ballerina.toml
+          sed -i "0,/version = \"${CURRENT_VERSION}\"/s//version = \"${NEW_VERSION}\"/" ./hl7v23/Ballerina.toml
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Commit changes and make a PR
