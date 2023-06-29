@@ -53,16 +53,16 @@ jobs:
           BALLERINA_DEV_CENTRAL: true
           BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_DEV_ACCESS_TOKEN }}      
 
-      - name: Push to Prod
-        if: github.event.inputs.bal_central_environment == 'PROD'
-        uses: ballerina-platform/ballerina-action@2201.6.0
-        with:
-          args:
-            push
-        env:
-          WORKING_DIR: ./hl7v23
-          JAVA_HOME: /usr/lib/jvm/default-jvm
-          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
+      # - name: Push to Prod
+      #   if: github.event.inputs.bal_central_environment == 'PROD'
+      #   uses: ballerina-platform/ballerina-action@2201.6.0
+      #   with:
+      #     args:
+      #       push
+      #   env:
+      #     WORKING_DIR: ./hl7v23
+      #     JAVA_HOME: /usr/lib/jvm/default-jvm
+      #     BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
 
       - name: Publish Release
         if: github.event.inputs.bal_central_environment == 'PROD'
@@ -82,7 +82,8 @@ jobs:
               "name": "'$RELEASE_NAME'",
               "body": "[Automated] Creating tag:  '$RELEASE_NAME'.",
               "draft": false,
-              "prerelease": false
+              "prerelease": false,
+              "target_commitish": "'$BRANCH_NAME'"
             }' \
             "https://api.github.com/repos/${{ github.repository }}/releases"
 
